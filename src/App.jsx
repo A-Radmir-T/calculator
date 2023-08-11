@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react'
 
 export const App = () => {
 	const [calculated, setCalculated] = useState(false)
-	const calculatorNumbers = ['9', '8', '7', '6', '5', '4', '3', '2', '1', '0']
-	const calculatorOperators = ['C', '-', '+', '=']
+	const buttons = ['9', '8', '7', '6', '5', '4', '3', '2', '1', '0', 'C', '-', '+', '=']
 	const [display, setDisplay] = useState(['0'])
 
+	const isOperator = (btn) => {
+		return ['C', '-', '+', '='].includes(btn)
+	}
+
 	useEffect(() => {
-		const buttons = [...calculatorNumbers, ...calculatorOperators, 'c']
 		document.onkeydown = (event) => {
 			event.preventDefault()
 			const { key } = event
@@ -29,13 +31,13 @@ export const App = () => {
 			setCalculated(false)
 			return
 		}
-		if (calculated && !calculatorOperators.includes(btn)) {
+		if (calculated && !isOperator(btn)) {
 			setCalculated(false)
 			setDisplay([btn])
 			return
 		}
 		setCalculated(false)
-		if (btn === '=' || (display.length === 3 && calculatorOperators.includes(btn))) {
+		if (btn === '=' || (display.length === 3 && isOperator(btn))) {
 			const value =
 				display.at(1) === '+'
 					? Number(display.at(0)) + Number(display.at(2))
@@ -45,7 +47,7 @@ export const App = () => {
 			setCalculated(true)
 			return
 		}
-		if (calculatorOperators.includes(btn) && btn !== '=') {
+		if (isOperator(btn) && btn !== '=') {
 			setDisplay((prev) => [display.at(0), btn])
 			return
 		}
@@ -53,11 +55,11 @@ export const App = () => {
 			setDisplay([btn])
 			return
 		}
-		if (display.length === 3 && calculatorNumbers.includes(btn)) {
+		if (display.length === 3 && !isOperator(btn)) {
 			setDisplay((prev) => [display.at(0), display.at(1), display.at(2) + btn])
 			return
 		}
-		if (display.length === 2 && calculatorNumbers.includes(btn)) {
+		if (display.length === 2 && !isOperator(btn)) {
 			setDisplay((prev) => [...prev, btn])
 			return
 		}
@@ -77,21 +79,27 @@ export const App = () => {
 
 				<div className={styles.buttons}>
 					<ul className={styles.numbers}>
-						{calculatorNumbers.map((btn) => (
-							<li key={btn}>
-								<button onClick={() => handleButtons(btn)} type="button">
-									{btn}
-								</button>
-							</li>
-						))}
+						{buttons.map(
+							(btn) =>
+								!isOperator(btn) && (
+									<li key={btn}>
+										<button onClick={() => handleButtons(btn)} type="button">
+											{btn}
+										</button>
+									</li>
+								),
+						)}
 					</ul>
 
 					<ul>
-						{calculatorOperators.map((btn) => (
-							<li key={btn}>
-								<button onClick={() => handleButtons(btn)}>{btn}</button>
-							</li>
-						))}
+						{buttons.slice(10).map(
+							(btn) =>
+								isOperator(btn) && (
+									<li key={btn}>
+										<button onClick={() => handleButtons(btn)}>{btn}</button>
+									</li>
+								),
+						)}
 					</ul>
 				</div>
 			</div>
